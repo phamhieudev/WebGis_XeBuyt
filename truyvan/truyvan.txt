@@ -1,0 +1,8 @@
+ insert into tramxebus_font_point (geom,tentram,ghichu)
+ values ('SRID=4326;POINT(106.62639994087715 11.00448399644145)','test','test');
+
+ALTER TABLE tramxebus_font_point
+  ALTER COLUMN geom TYPE GEOMETRY(POINT, 4326)
+    USING ST_SetSRID(ST_GeometryN(geom, 1), 4326);
+
+ ST_X(the_geom::geometry), ST_Y(the_geom::geometry)

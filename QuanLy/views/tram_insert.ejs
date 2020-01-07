@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v6.1.1/build/ol.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
+    </script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous">
+    </script>
+    <link rel="stylesheet" href="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v6.1.1/css/ol.css">
+
+    <style>
+        #map {
+            position: relative;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 500px;
+            width: 500px;
+        }
+
+        .ol-popup {
+            position: absolute;
+            background-color: white;
+            -webkit-filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
+            filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #cccccc;
+            bottom: 12px;
+            left: -50px;
+            min-width: 180px;
+        }
+
+        .ol-popup:after,
+        .ol-popup:before {
+            top: 100%;
+            border: solid transparent;
+            content: " ";
+            height: 0;
+            width: 0;
+            position: absolute;
+            pointer-events: none;
+        }
+
+        .ol-popup:after {
+            border-top-color: white;
+            border-width: 10px;
+            left: 48px;
+            margin-left: -10px;
+        }
+
+        .ol-popup:before {
+            border-top-color: #cccccc;
+            border-width: 11px;
+            left: 48px;
+            margin-left: -11px;
+        }
+
+        .ol-popup-closer {
+            text-decoration: none;
+            position: absolute;
+            top: 2px;
+            right: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-3">
+                <form action="" method="POST" enctype="application/x-www-form-urlencoded">
+                    <div class="form-group">
+                        <label for="texttram">Tên Trạm:</label>
+                        <input type="texttram" class="form-control" placeholder="Tên Trạm" name="txttram" id="tram">
+                    </div>
+                    <div class="form-group">
+                        <label for="textghichu">Ghi Chú:</label>
+                        <input type="textghichu" class="form-control" placeholder="Ghi Chú" name="txtghichu" id="ghichu" size="30">
+                    </div>
+                    <div class="form-group">
+                        <label for="texttoadox">Tọa Độ X:</label>
+                        <input type="texttoadox" class="form-control" placeholder="Tọa Độ X" name="txttoadox" id="toadox">
+                    </div>
+                    <div class="form-group">
+                        <label for="texttoadoy">Tọa Độ Y:</label>
+                        <input type="texttoadoy" class="form-control" placeholder="Tọa Độ Y" name="txttoadoy" id="toadoy">
+                    </div>
+                    <button type="submit" class="btn btn-primary" name="btnThem">Thêm</button>
+                </form>
+            </div>
+
+            <div id="map" class="col-9">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                        Tùy chỉnh xem Layer
+                    </button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href=""> <input class="form-check-input"
+                                onclick="showhideLayervung(vung)" type="checkbox" value="" id="defaultCheck1">
+                            <label class="form-check-label" for="defaultCheck1">
+                                Ẩn Layer Vùng
+                            </label></a>
+                        <a class="dropdown-item" href=""> <input class="form-check-input"
+                                onclick="showhideLayerduong(duong)" type="checkbox" value="" id="defaultCheck2">
+                            <label class="form-check-label" for="defaultCheck2">
+                                Ẩn Layer Đường
+                            </label></a>
+                        <a class="dropdown-item" href=""> <input class="form-check-input"
+                                onclick="showhideLayertram(tram)" type="checkbox" value="" id="defaultCheck3">
+                            <label class="form-check-label" for="defaultCheck3">
+                                Ẩn Trạm Xe Bus
+                            </label></a>
+                    </div>
+                </div>
+                <div id="info">&nbsp;</div>
+                <div id="popup" class="ol-popup">
+                    <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+
+                    <div id="popup-content"></div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Elements that make up the popup.
+         */
+        var container = document.getElementById('popup');
+        var content = document.getElementById('popup-content');
+        var closer = document.getElementById('popup-closer');
+
+        /**
+         * Create an overlay to anchor the popup to the map.
+         */
+        var overlay = new ol.Overlay( /** @type {olx.OverlayOptions} */ ({
+            element: container,
+            autoPan: true,
+            autoPanAnimation: {
+                duration: 250
+            }
+        }));
+        /**
+         * Add a click handler to hide the popup.
+         * @return {boolean} Don't follow the href.
+         */
+        closer.onclick = function () {
+            overlay.setPosition(undefined);
+            closer.blur();
+            return false;
+        };
+        var map = new ol.Map({
+            view: new ol.View({
+                center: [11871819.171012152, 1229646.7537582985],
+                zoom: 13
+            }),
+            layers: [
+                new ol.layer.Tile({
+                    source: new ol.source.OSM()
+                })
+            ],
+            overlays: [overlay],
+            target: 'map',
+            view: new ol.View({
+                center: [11871819.171012152, 1229646.7537582985],
+                zoom: 13
+            })
+
+        });
+
+        var vung = new ol.layer.Image({
+            source: new ol.source.ImageWMS({
+                url: 'http://localhost:8080/geoserver/webgis/wms',
+                params: {
+                    'LAYERS': 'webgis:vungranhgioiphuongtxtdm_region'
+                },
+                serverType: 'geoserver'
+            })
+        });
+        var duong = new ol.layer.Image({
+            source: new ol.source.ImageWMS({
+                url: 'http://localhost:8080/geoserver/webgis/wms',
+                params: {
+                    'LAYERS': 'webgis:duong'
+                },
+                serverType: 'geoserver'
+            })
+        });
+        var tram = new ol.layer.Image({
+            source: new ol.source.ImageWMS({
+                url: 'http://localhost:8080/geoserver/webgis/wms',
+                params: {
+                    'LAYERS': 'webgis:tramxebus_font_point'
+                },
+                serverType: 'geoserver'
+            })
+        });
+
+
+
+        vung.setOpacity(0.9);
+        map.addLayer(vung);
+        map.addLayer(duong);
+        map.addLayer(tram);
+
+        map.on('singleclick', function (evt) {
+           
+            var view = map.getView();
+            var viewResolution = view.getResolution();
+            var source = tram.getSource();
+            var url = source.getFeatureInfoUrl(
+                evt.coordinate, viewResolution, view.getProjection(), {
+                    'INFO_FORMAT': 'application/json',
+                    'FEATURE_COUNT': 50
+                });
+
+            if (url) {
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    success: function (n) {
+                        var content = "<table>";
+                        for (var i = 0; i < n.features.length; i++) {
+                            var feature = n.features[i];
+                            var featureAttr = feature.properties;
+                            content += "<tr><td>Tên Trạm:" + featureAttr["tentram"] +
+                                "</td></tr>"
+                        }
+                        content += "</table>";
+                        $("#popup-content").html(content);
+                        overlay.setPosition(evt.coordinate);
+                    }
+                });
+            }
+
+        });
+
+        map.on('click', function (evt) {
+            console.log(ol.proj.transform(evt.coordinate, 'EPSG:3857', 'EPSG:4326'));
+        });
+        map.on('click', function (evt) {
+            //document.getElementById("myText").value=(ol.proj.transform(evt.coordinate, 'EPSG:3857', 'EPSG:4326'));
+
+            var lonlat = ol.proj.transform(evt.coordinate, 'EPSG:3857', 'EPSG:4326');
+            var lon = lonlat[0];
+            var lat = lonlat[1];
+            document.getElementById("toadox").value=lon;
+            document.getElementById("toadoy").value=lat;
+        });
+
+        // ẩn hiện layer 
+        function showhideLayervung(vung) {
+            if (defaultCheck1.checked) {
+                vung.setVisible(false);
+            } else {
+                vung.setVisible(true);
+            }
+        }
+
+        function showhideLayerduong(duong) {
+            if (defaultCheck2.checked) {
+                duong.setVisible(false);
+            } else {
+                duong.setVisible(true);
+            }
+        }
+
+        function showhideLayertram(tram) {
+            if (defaultCheck3.checked) {
+                tram.setVisible(false);
+            } else {
+                tram.setVisible(true);
+            }
+        }
+    </script>
+</body>
+
+</html>
